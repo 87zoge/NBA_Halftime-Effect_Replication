@@ -1,0 +1,7 @@
+outcome,estimate,coef,se,p,n
+win,regular-line seasons,6.654483,1.98078,0.000781,10007
+win,short-line seasons,-3.431274,4.194093,0.413288,2277
+win,short minus regular,-10.085757,4.638309,0.029672,12284
+second_half_margin,regular-line seasons,0.91316,0.396841,0.021387,10007
+second_half_margin,short-line seasons,0.368527,0.824295,0.654816,2277
+second_half_margin,short minus regular,-0.544633,0.914847,0.551624,12284
