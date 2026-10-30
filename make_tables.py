@@ -59,7 +59,8 @@ def add_rule(cells, side: str, size: int):
         if borders is None:
             borders = OxmlElement("w:tcBorders")
             # schema order: tcBorders comes right after tcW / gridSpan / vMerge
-            anchor = [c for c in tc_pr if c.tag in (qn("w:tcW"), qn("w:gridSpan"), qn("w:vMerge"))]
+            anchor = [c for c in tc_pr if c.tag in (
+                qn("w:tcW"), qn("w:gridSpan"), qn("w:vMerge"))]
             if anchor:
                 anchor[-1].addnext(borders)
             else:
@@ -94,7 +95,8 @@ def add_table(doc, title: str, header: list[str], rows: list, note: str, first_c
     t.autofit = False
     tbl_w = t._tbl.tblPr.find(qn("w:tblW"))
     tbl_w.set(qn("w:type"), "dxa")
-    tbl_w.set(qn("w:w"), str(int(TEXT_WIDTH_CM / 2.54 * 1440)))  # twentieths of a point
+    # twentieths of a point
+    tbl_w.set(qn("w:w"), str(int(TEXT_WIDTH_CM / 2.54 * 1440)))
     other_cm = (TEXT_WIDTH_CM - first_col_cm) / (len(header) - 1)
     for j, col in enumerate(t.columns):
         col.width = Cm(first_col_cm if j == 0 else other_cm)
@@ -110,7 +112,8 @@ def add_table(doc, title: str, header: list[str], rows: list, note: str, first_c
             write_cell(cells[0].merge(cells[-1]), row, italic=True, align=left)
             continue
         for j, text in enumerate(row):
-            write_cell(cells[j], text, bold=i - 1 in bold_rows, align=left if j == 0 else center)
+            write_cell(cells[j], text, bold=i - 1 in bold_rows,
+                       align=left if j == 0 else center)
     add_rule(t.rows[0].cells, "top", 12)
     add_rule(t.rows[0].cells, "bottom", 6)
     add_rule(t.rows[-1].cells, "bottom", 12)
@@ -131,7 +134,8 @@ def table1(doc):
     e = read("table1_eras")
     rows = [["Games"] + [num(v, 0) for v in e["games"]],
             ["Home team wins (%)"] + [num(v) for v in e["home_win_pct"]],
-            ["Three-point attempts (% of FGA)"] + [num(v) for v in e["3pa_share_pct"]],
+            ["Three-point attempts (% of FGA)"] + [num(v)
+                                                   for v in e["3pa_share_pct"]],
             ["SD of second-half margin (points)"] + [num(v, 2) for v in e["sd_second_half_margin"]]]
     add_table(doc, "Table 1: Sample and scoring environment by era", [""] + [era_header(l) for l in e.index], rows,
               "Regular-season games from ESPN, excluding neutral-site games and games tied at halftime. "
@@ -143,8 +147,10 @@ def table1(doc):
 def table2(doc):
     o = read("table2_down1_up1")
     rows = [["Home team wins when down 1 (%)"] + [num(v) for v in o["win_pct_down_1"]],
-            ["Home team wins when up 1 (%)"] + [num(v) for v in o["win_pct_up_1"]],
-            ["Difference, down 1 − up 1 (pp)"] + [num(v) for v in o["difference_pp"]],
+            ["Home team wins when up 1 (%)"] + [num(v)
+                                                for v in o["win_pct_up_1"]],
+            ["Difference, down 1 − up 1 (pp)"] + [num(v)
+                                                  for v in o["difference_pp"]],
             ["Games down 1"] + [num(v, 0) for v in o["n_down_1"]],
             ["Games up 1"] + [num(v, 0) for v in o["n_up_1"]],
             ["Share of ±1 games at −1"] + [num(v, 2) for v in o["share_at_minus_1"]]]
@@ -158,14 +164,17 @@ def table2(doc):
 def table3(doc):
     m, d = read("table3a_rd_by_era"), read("table3b_era_differences")
     b, s = zip(*(est(r) for _, r in m.iterrows()))
-    post, three, three_post = (est(d.loc[k]) for k in ("post minus B&P", "3pt minus B&P", "3pt minus post"))
+    post, three, three_post = (est(d.loc[k]) for k in (
+        "post minus B&P", "3pt minus B&P", "3pt minus post"))
     rows = ["Panel A. Jump in P(win) at a halftime margin of 0",
             ["Behind at halftime (pp)", *b], ["", *s],
-            ["95% confidence interval"] + [f"[{num(r.ci_lo)}, {num(r.ci_hi)}]" for r in m.itertuples()],
+            ["95% confidence interval"] +
+            [f"[{num(r.ci_lo)}, {num(r.ci_hi)}]" for r in m.itertuples()],
             ["Minimum detectable effect (pp)"] + [num(v) for v in m["mde"]],
             ["Observations"] + [num(v, 0) for v in m["n"]],
             "Panel B. Difference in the jump between eras",
-            ["Difference to B&P era", DASH, post[0], three[0]], ["", "", post[1], three[1]],
+            ["Difference to B&P era", DASH, post[0], three[0]], [
+                "", "", post[1], three[1]],
             ["Difference to post-B&P era", DASH, DASH, three_post[0]], ["", "", "", three_post[1]]]
     add_table(doc, "Table 3: Effect of trailing at halftime on winning, by era",
               [""] + [era_header(l) for l in m.index], rows,
@@ -180,7 +189,8 @@ def table3(doc):
 
 def table4(doc):
     m = read("table4_mechanism")
-    b, s = zip(*(est({"coef": r.points_jump, "se": r.points_se, "p": r.points_p}, 2) for r in m.itertuples()))
+    b, s = zip(*(est({"coef": r.points_jump, "se": r.points_se,
+               "p": r.points_p}, 2) for r in m.itertuples()))
     vb, vs = zip(*(est({"coef": r.point_value, "se": r.point_value_se, "p": r.point_value_p}, 2)
                    for r in m.itertuples()))
     rows = ["Panel A. Effort: jump in the second-half points margin",
@@ -208,7 +218,8 @@ def table5(doc):
         b, se = zip(*(est(s.loc[(outcome, c)], d) for c in cols))
         rows += [[label, *b], ["", *se]]
     add_table(doc, "Table 5: Short three-point line within the B&P era",
-              ["", "Regular-line\nseasons", "Short-line seasons\n1994/95–1996/97", "Difference"], rows,
+              ["", "Regular-line\nseasons",
+                  "Short-line seasons\n1994/95–1996/97", "Difference"], rows,
               "B&P-era seasons 1993/94–2008/09 only. The NBA shortened the three-point line to 22 feet from 1994/95 "
               "to 1996/97, which temporarily raised three-point attempts from 11.7% to about 20% of field-goal "
               "attempts. Same regression discontinuity as in Table 3 (linear, ±10 points), estimated separately "
@@ -222,7 +233,8 @@ def table6(doc):
     eras = list(dict.fromkeys(r.index.get_level_values(0)))
     rows = ["Panel A. Window and functional form"]
     for check, label in (("linear ±5", "Linear, ±5 points"), ("linear ±10 (main)", "Linear, ±10 points (main)"),
-                         ("linear ±15", "Linear, ±15 points"), ("cubic ±10", "Cubic, ±10 points (B&P-style)"),
+                         ("linear ±15", "Linear, ±15 points"), ("cubic ±10",
+                                                                "Cubic, ±10 points (B&P-style)"),
                          ("rdrobust", "rdrobust, local linear")):
         b, s = zip(*(est(r.loc[(e, check)]) for e in eras))
         rows += [[label, *b], ["", *s]]
@@ -237,10 +249,7 @@ def table6(doc):
               "Each cell is the jump in the probability of winning (percentage points) at a halftime margin of 0, "
               "standard errors in parentheses. Rows in Panel A vary the window around the cutoff and the polynomial; "
               "the cubic is shown only for comparability with B&P, since high-order polynomials "
-              "are not recommended in RD designs (Gelman & Imbens, 2019). rdrobust (Calonico et al., 2014) "
-              "uses a triangular kernel, an MSE-optimal bandwidth "
-              f"({bandwidths} points for the three eras) and a mass-point adjustment; its stars are based on the "
-              "robust bias-corrected p-value. Panel B uses the main specification (linear, ±10 points); the COVID "
+              "are not recommended in RD designs (Gelman & Imbens, 2019). Panel B uses the main specification (linear, ±10 points); the COVID "
               "seasons are 2019/20 (bubble) and 2020/21 (empty arenas). " + STARS)
 
 
